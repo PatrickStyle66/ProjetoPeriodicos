@@ -18,16 +18,23 @@ def search_cont(link):
             print(reference)
     print('\n')
 
-for pag in range(1,26):
-    req = requests.get('https://www.tnh1.com.br/noticias/resultado-de-busca/pagina/{}/busca/ufal/'.format(pag))
-    if req.status_code == 200:
-        print('Requisição {} bem sucedida!'.format(pag))
-        content = req.content
-    soup = BeautifulSoup(content, 'html.parser')
-    noticias = soup.find_all(name='li', attrs={'class':'noticias-listagem__lista__item'})
-    for objcont in noticias:
-        cont = str(objcont)
-        if 'pesquisa' in cont:
-           link = objcont.find(name = 'a')['href']
-           #print(link)
-           search_cont(link)
+def tnh1():
+    pag = 1
+    while True:
+        req = requests.get('https://www.tnh1.com.br/noticias/resultado-de-busca/pagina/{}/busca/ufal/'.format(pag))
+        if req.status_code == 200:
+            print('Requisição {} bem sucedida!'.format(pag))
+            content = req.content
+        soup = BeautifulSoup(content, 'html.parser')
+        prox = soup.find_all(name='a', attrs={'title': 'Próxima Página'})
+        if prox == []:
+            break
+        noticias = soup.find_all(name='li', attrs={'class': 'noticias-listagem__lista__item'})
+        for objcont in noticias:
+            cont = str(objcont)
+            if 'pesquisa' in cont:
+                link = objcont.find(name='a')['href']
+                search_cont(link)
+        pag += 1
+
+tnh1()
