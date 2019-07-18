@@ -1,7 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
+def s_tnh1(soup):
+    return soup.find_all(name = 'p',attrs={'class':'bodytext'})
 
-def search_cont(link):
+def s_alagoas24(soup):
+    return soup.find_all(name = 'p')
+
+def search_cont(link,site):
     req = requests.get(link)
     if req.status_code == 200:
         content = req.content
@@ -9,7 +14,7 @@ def search_cont(link):
     title = soup.find(name='title')
     title = title.get_text()
     print('Título: {}'.format(title))
-    body = soup.find_all(name = 'p',attrs={'class':'bodytext'})
+    body = site(soup)
     print('Conteúdo:')
     for text in body:
         print(text.get_text())
@@ -34,7 +39,23 @@ def tnh1():
             cont = str(objcont)
             if 'pesquisa' in cont:
                 link = objcont.find(name='a')['href']
-                search_cont(link)
+                search_cont(link,s_tnh1)
         pag += 1
 
-tnh1()
+def alagoas24():
+    pag = 1
+    req = requests.get('http://www.alagoas24horas.com.br/page/{}/?s=ufal'.format(pag))
+    if req.status_code == 200:
+        print('Requisição {} bem sucedida!'.format(pag))
+        content = req.content
+    soup = BeautifulSoup(content, 'html.parser')
+    noticias = soup.find_all(name='h3',attrs={'class':'title'})
+    for objcont in noticias:
+        cont = str(objcont)
+        if 'pesquisa' in cont:
+            link = objcont.find(name='a')['href']
+            search_cont(link,s_alagoas24)
+
+
+#alagoas24()
+#tnh1()
